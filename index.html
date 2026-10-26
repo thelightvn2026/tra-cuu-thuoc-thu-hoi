@@ -40,6 +40,9 @@
 body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--f-ui)}
 .wrap{max-width:1180px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
 header{display:grid;gap:6px}
+.topbar{display:flex;justify-content:flex-start;margin-bottom:6px}
+.home{display:inline-flex;align-items:center;gap:8px;font:600 14px var(--f-ui);color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;text-decoration:none}
+.home:hover{border-color:var(--accent);background:var(--accent-soft)}
 .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
 h1{margin:0;font-size:clamp(26px,4vw,34px);line-height:1.15;font-weight:700;text-wrap:balance}
 .sub{margin:0;color:var(--muted);max-width:70ch}
@@ -121,6 +124,7 @@ footer ul{margin:0;padding-left:18px}
 <body>
 <div class="wrap">
   <header>
+    <div class="topbar"><a class="home" href="https://tlgo.vn/"><span aria-hidden="true">←</span> Quay về trang chủ</a></div>
     <div class="eyebrow">Cục Quản lý Dược · Công văn thu hồi thuốc</div>
     <h1>Tra cứu thuốc đình chỉ lưu hành, thu hồi</h1>
     <p class="sub">Tra theo ngày ban hành văn bản, tên thuốc, số đăng ký hoặc số lô, rồi tải kết quả về Excel đúng mẫu sổ theo dõi 11 cột.</p>
@@ -140,7 +144,6 @@ footer ul{margin:0;padding-left:18px}
       <div class="count" id="count"></div>
       <div class="row" style="gap:8px">
         <button class="btn ghost" id="reset" type="button">Xóa bộ lọc</button>
-        <button class="btn ghost" id="cp" type="button" disabled>Sao chép bảng để dán vào Excel</button>
         <button class="btn" id="dl" type="button" disabled>Tải Excel</button>
       </div>
     </div>
@@ -202,7 +205,6 @@ function bind(){
   $('#reset').addEventListener('click',()=>{$('#q').value='';$('#sev').value='';setPreset('all')});
   $('#years').addEventListener('click',e=>{const b=e.target.closest('.yr');if(b)setPreset(preset==='y'+b.dataset.y?'all':'y'+b.dataset.y)});
   $('#dl').addEventListener('click',download);
-  $('#cp').addEventListener('click',copyTable);
 }
 function filtered(){
   const f=$('#from').value,t=$('#to').value,q=norm($('#q').value),s=$('#sev').value;
@@ -213,7 +215,6 @@ function apply(){
   current=filtered();
   const docs=groupDocs(current);
   $('#count').innerHTML=`Tìm thấy <b>${docs.length}</b> văn bản · <b>${current.length}</b> dòng`;
-  $('#cp').disabled=!current.length;
   const dl=$('#dl'); dl.disabled=!current.length; dl.textContent=current.length?`Tải Excel (${current.length} dòng)`:'Tải Excel';
   renderYears(); renderList(docs);
 }
@@ -290,31 +291,9 @@ async function download(){
 }
 function noDownload(){
   const msg=$('#msg'); msg.className='msg err';
-  msg.textContent='Trang này đang mở ngoài claude.ai nên trình duyệt không cho tải file. Hãy bấm "Sao chép bảng để dán vào Excel", mở file mẫu Excel, chọn ô A2 rồi dán (Ctrl+V). Hoặc mở trang trong claude.ai khi đã đăng nhập để tải trực tiếp.';
+  msg.innerHTML='Trang này không tải được file khi mở ngoài claude.ai. Hãy mở <a href="https://thelightvn2026.github.io/tra-cuu-thuoc-thu-hoi/" target="_blank" rel="noopener">bản website công khai</a> để tải Excel trực tiếp (cùng dữ liệu, có link PDF).';
 }
 function sortedRows(){return [...current].sort((x,y)=>x.a.localeCompare(y.a)||x.b.localeCompare(y.b,'vi')||x.c.localeCompare(y.c,'vi')||x.f.localeCompare(y.f))}
-async function copyTable(){
-  const msg=$('#msg'); msg.className='msg';
-  const rows=sortedRows();
-  const cols=r=>[fmt(r.a),r.b,r.c,r.d,r.e,r.f,r.g,r.h,r.i,r.j,r.k];
-  const clean=v=>(v||'').toString().replace(/[\t\r\n]+/g,' ');
-  const tsv=rows.map(r=>cols(r).map(clean).join('\t')).join('\r\n');
-  const txt='style="mso-number-format:\'\\@\'"';
-  const html='<table>'+rows.map(r=>'<tr>'+cols(r).map((v,j)=>`<td ${[1,4,5,6].includes(j)?txt:''}>${esc(clean(v))}</td>`).join('')+'</tr>').join('')+'</table>';
-  try{
-    if(window.ClipboardItem&&navigator.clipboard.write){
-      await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([tsv],{type:'text/plain'})})]);
-    }else{await navigator.clipboard.writeText(tsv)}
-    msg.textContent=`Đã sao chép ${rows.length} dòng (cột A–K, không gồm tiêu đề). Mở file mẫu Excel, chọn ô A2 rồi dán (Ctrl+V).`;
-  }catch(e){
-    try{await navigator.clipboard.writeText(tsv);msg.textContent=`Đã sao chép ${rows.length} dòng. Mở file mẫu Excel, chọn ô A2 rồi dán (Ctrl+V). Nếu số lô bị mất số 0 ở đầu, định dạng cột E, F, G là Text trước khi dán.`}
-    catch(e2){
-      const ta=document.createElement('textarea');ta.value=tsv;ta.setAttribute('aria-label','Dữ liệu để sao chép');ta.style.cssText='width:100%;height:160px;font:12px var(--f-mono)';
-      msg.textContent='Trình duyệt không cho sao chép tự động. Dữ liệu đã được chọn sẵn trong ô dưới đây, hãy bấm Ctrl+C rồi dán vào Excel tại ô A2.';
-      msg.after(ta);ta.focus();ta.select();
-    }
-  }
-}
 load();
 </script>
 
