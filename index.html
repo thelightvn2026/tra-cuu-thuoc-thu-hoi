@@ -20,6 +20,7 @@
   --link:#0b5f8a;
   --docA-bg:#e6f3f4; --docA-edge:#0b6b77; --docB-bg:#ecebf8; --docB-edge:#4b46a8;
   --drug-bg:#fff6dc; --drug-edge:#e0a400; --drug-ink:#3a2a00; --code-bg:#ffffff; --code-line:#e3c66a;
+  --ad-bg:#0b4f58; --ad-ink:#f2fbfc; --ad-chip:rgba(255,255,255,.16); --ad-btn:#ffcf4a; --ad-btn-ink:#2a2000;
   --f-ui:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
   --r:8px;
@@ -117,6 +118,21 @@ footer ul{margin:0;padding-left:18px}
   .reason{grid-column:auto}
   .tags{justify-content:flex-start}
 }
+
+.ad{margin-bottom:12px;background:var(--ad-bg);color:var(--ad-ink);border-radius:var(--r);padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:14px 24px;align-items:center}
+.ad-k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.75;font-weight:600}
+.ad h2{margin:2px 0 4px;font-size:clamp(18px,2.6vw,22px);line-height:1.25;font-weight:700;text-wrap:balance}
+.ad p{margin:0;opacity:.9;font-size:14px}
+.ad ul{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.ad li{font-size:12.5px;font-weight:500;background:var(--ad-chip);border-radius:999px;padding:4px 10px}
+.ad-cta{display:grid;gap:8px;justify-items:stretch;min-width:200px}
+.ad-btn{display:inline-flex;justify-content:center;align-items:center;font:600 14px var(--f-ui);border-radius:6px;padding:10px 16px;text-decoration:none;min-height:40px}
+.ad-btn.pri{background:var(--ad-btn);color:var(--ad-btn-ink)}
+.ad-btn.sec{border:1px solid var(--ad-chip);color:var(--ad-ink)}
+.ad-btn:hover{filter:brightness(1.06)}
+.ad-hot{font-size:13px;text-align:center;opacity:.9}
+.ad-hot b{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+@media (max-width:680px){.ad{grid-template-columns:1fr}.ad-cta{min-width:0}}
 @media (prefers-reduced-motion:no-preference){.chip,.yr,.btn{transition:background .15s,border-color .15s}}
 </style>
 
@@ -125,6 +141,24 @@ footer ul{margin:0;padding-left:18px}
 <div class="wrap">
   <header>
     <div class="topbar"><a class="home" href="https://tlgo.vn/"><span aria-hidden="true">←</span> Quay về trang chủ</a></div>
+    <aside class="ad" aria-label="Quảng cáo phần mềm quản lý nhà thuốc Ánh Sáng">
+      <div>
+        <div class="ad-k">Phần mềm quản lý nhà thuốc Ánh Sáng · TLGo</div>
+        <h2>Quản lý hiệu quả, vận hành đơn giản hơn</h2>
+        <p>Phần mềm chuyên biệt cho nhà thuốc, doanh nghiệp dược và phòng khám.</p>
+        <ul>
+          <li>Bán hàng, tồn kho, công nợ</li>
+          <li>Liên thông dữ liệu Dược</li>
+          <li>Kê đơn điện tử theo quy định Bộ Y tế</li>
+          <li>Bản quyền trọn đời</li>
+        </ul>
+      </div>
+      <div class="ad-cta">
+        <a class="ad-btn pri" href="https://dangky.tlgo.vn/" target="_blank" rel="noopener">Đăng ký dùng thử</a>
+        <a class="ad-btn sec" href="https://tlgo.vn/pages/phan-mem-nha-thuoc" target="_blank" rel="noopener">Xem phần mềm</a>
+        <div class="ad-hot">Hotline: <b>0818 003 233</b></div>
+      </div>
+    </aside>
     <div class="eyebrow">Cục Quản lý Dược · Công văn thu hồi thuốc</div>
     <h1>Tra cứu thuốc đình chỉ lưu hành, thu hồi</h1>
     <p class="sub">Tra theo ngày ban hành văn bản, tên thuốc, số đăng ký hoặc số lô, rồi tải kết quả về Excel đúng mẫu sổ theo dõi 11 cột.</p>
@@ -291,7 +325,7 @@ async function download(){
 }
 function noDownload(){
   const msg=$('#msg'); msg.className='msg err';
-  msg.innerHTML='Trang này không tải được file khi mở ngoài claude.ai. Hãy mở <a href="https://thelightvn2026.github.io/tra-cuu-thuoc-thu-hoi/" target="_blank" rel="noopener">bản website công khai</a> để tải Excel trực tiếp (cùng dữ liệu, có link PDF).';
+  msg.innerHTML='Trang này không tải được file khi mở ngoài claude.ai. Hãy mở <a href="https://thuhoithuoc.tlgo.vn/" target="_blank" rel="noopener">bản website công khai</a> để tải Excel trực tiếp (cùng dữ liệu, có link PDF).';
 }
 function sortedRows(){return [...current].sort((x,y)=>x.a.localeCompare(y.a)||x.b.localeCompare(y.b,'vi')||x.c.localeCompare(y.c,'vi')||x.f.localeCompare(y.f))}
 load();
